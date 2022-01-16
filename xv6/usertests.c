@@ -1403,7 +1403,7 @@ forktest(void)
     }
   }
 
-  if(wait0() != -1){
+  if(wait(0) != -1){
     printf(1, "wait got too many\n");
     exit(-1);
   }
