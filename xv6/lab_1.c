@@ -110,7 +110,7 @@ int CELEBW02(void){
     printf(2, "fork() error");
   else if (pid == 0) {
     sleep(5);
-    exitS(1);
+    exit(1);
   }
   else do {
     if ((retpid = waitpid(pid, &status, WNOHANG)) == -1)
