@@ -21,10 +21,10 @@ int PScheduler(void){
   int pid;
   int i,j,k;
   
-    printf(1, "\n  Step 2: testing the priority scheduler and setpriority(int priority)) systema call:\n");
-    printf(1, "\n  Step 2: Assuming that the priorities range between range between 0 to 31\n");
-    printf(1, "\n  Step 2: 0 is the highest priority. All processes have a default priority of 10\n");
-    printf(1, "\n  Step 2: The parent processes will switch to priority 0\n");
+    cprintf("\n  Step 2: testing the priority scheduler and setpriority(int priority)) systema call:\n");
+    cprintf("\n  Step 2: Assuming that the priorities range between range between 0 to 31\n");
+    cprintf("\n  Step 2: 0 is the highest priority. All processes have a default priority of 10\n");
+    cprintf("\n  Step 2: The parent processes will switch to priority 0\n");
     setpriority(0);
     for (i = 0; i <  3; i++) {
 	pid = fork();
@@ -32,15 +32,15 @@ int PScheduler(void){
 		continue;}
 	else if ( pid == 0) {
 		setpriority(30-10*i);
-		printf(1,"\nThis is child# %d with priority %d starting..\n",getpid(),30-10*i);	
+		cprintf("\nThis is child# %d with priority %d starting..\n",getpid(),30-10*i);	
 		for (j=0;j<5;j++) {
 			for(k=0;k<10;k++) {
 				asm("nop"); }}
-		printf(1, "\n child# %d with priority %d has finished! \n",getpid(),30-10*i);		
+		cprintf("\n child# %d with priority %d has finished! \n",getpid(),30-10*i);		
 		exit(0);
         }
         else {
-			printf(2," \n Error \n");
+			cprintf(" \n Error \n");
         }
 	}
 	
@@ -49,7 +49,7 @@ int PScheduler(void){
 			wait(0);
 
 		}
-    printf(1,"\n if processes with highest priority finished first then its correct \n");
+    cprintf("\n if processes with highest priority finished first then its correct \n");
 }
 	exit(0);		
 	return 0;}
