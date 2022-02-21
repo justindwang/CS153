@@ -76,14 +76,14 @@ int PScheduler(void){
     printf(1, "\n  Assuming that the priorities range between range between 0 to 31\n");
     printf(1, "\n  0 is the highest priority. All processes have a default priority of 10\n");
     printf(1, "\n  The parent processes will switch to priority 0\n");
-    setPriority(0);
+    setpriority(0);
 
     for(i = 0; i < 5; i++) {
         pid = fork();
         if (pid > 0 ) {
             continue;
         } else if ( pid == 0) {
-            setPriority(priorityArr[i]);
+            setpriority(priorityArr[i]);
             printf(1, "\n child# %d has priority %d before starting its work", getpid(), getpriority);
             for (j=0;j<50000;j++) {
                 for(k=0;k<1000;k++) {
