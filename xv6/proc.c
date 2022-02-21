@@ -469,8 +469,6 @@ scheduler(void)
           }
         }
       }
-      cprintf(" \n This is process %d with priority %d \n ", p->pid, p->priority);
-      //END*/
 
       p = ptable.proc;
     }
