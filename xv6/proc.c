@@ -88,7 +88,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
-  p->priority = 31;
+  p->priority = 10;
   p->start = ticks;
 
   release(&ptable.lock);
@@ -382,7 +382,7 @@ void
 scheduler(void)
 {
   struct proc *p;
-  struct proc *i;
+  struct proc *temp;
   struct cpu *c = mycpu();
   c->proc = 0;
   
@@ -398,9 +398,9 @@ scheduler(void)
         p++;
         continue;
       }
-      for(i = p + 1; i < &ptable.proc[NPROC]; i++){
-        if(i->state == RUNNABLE && i->priority < p->priority)
-          p = i;
+      for(temp = p + 1; temp < &ptable.proc[NPROC]; temp++){
+        if(temp->state == RUNNABLE && temp->priority < p->priority)
+          p = temp;
       }
 
       // Switch to chosen process.  It is the process's job
@@ -417,20 +417,16 @@ scheduler(void)
       // It should have changed its p->state before coming back.
       c->proc = 0;
 
-      //START - Starvation Scheduler
-      //run this scheduler with command "lab2"
-      for(i = ptable.proc; i < &ptable.proc[NPROC]; i++){
-        if(i->state == RUNNABLE){
-          if(i == p && i->priority < 31){
-            i->priority = i->priority + 1;
-          }
-          else if(i != p && i->priority > 0){
-            i->priority = i->priority - 1;
-          }
-        }
-      }
-      cprintf(" \n This is process %d with priority %d \n ", p->pid, p->priority);
-      //END*/
+      // for(temp = ptable.proc; temp < &ptable.proc[NPROC]; temp++){
+      //   if(temp->state == RUNNABLE){
+      //     if(temp == p && temp->priority < 31){
+      //       temp->priority = temp->priority + 1;
+      //     }
+      //     else if(temp != p && temp->priority > 0){
+      //       temp->priority = temp->priority - 1;
+      //     }
+      //   }
+      // }
 
       p = ptable.proc;
     }
