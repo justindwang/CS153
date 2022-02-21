@@ -382,24 +382,32 @@ void
 scheduler(void)
 {
   struct proc *p;
-  struct proc *temp;
   struct cpu *c = mycpu();
   c->proc = 0;
+  int lowest;
   
   for(;;){
     // Enable interrupts on this processor.
     sti();
 
     // Loop over process table looking for process to run.
+    lowest = 32;
     acquire(&ptable.lock);
-
-    for(p = ptable.proc;p < &ptable.proc[NPROC];p++){
-      if(p->state != RUNNABLE){
-        continue;
+      for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+          if (p->state == RUNNABLE && p->priority < lowest) {
+              lowest = p->priority;
+          }
       }
-      for(temp = ptable.proc; temp < &ptable.proc[NPROC]; temp++){
-        if(temp->state == RUNNABLE && temp->priority < p->priority)
-          p = temp;
+
+      for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->state != RUNNABLE)
+        continue;
+
+      if(p->priority != lowest){
+          // if (p->priority > 0) {
+          //     p->priority--;
+          // }
+          continue;
       }
 
       // Switch to chosen process.  It is the process's job
@@ -408,6 +416,7 @@ scheduler(void)
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
+      // p->priority++;
 
       swtch(&(c->scheduler), p->context);
       switchkvm();
@@ -415,20 +424,9 @@ scheduler(void)
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       c->proc = 0;
-
-      // for(temp = ptable.proc; temp < &ptable.proc[NPROC]; temp++){
-      //   if(temp->state == RUNNABLE){
-      //     if(temp == p && temp->priority < 31){
-      //       temp->priority = temp->priority + 1;
-      //     }
-      //     else if(temp != p && temp->priority > 0){
-      //       temp->priority = temp->priority - 1;
-      //     }
-      //   }
-      // }
     }
-    release(&ptable.lock);
 
+    release(&ptable.lock);
   }
 }
 
