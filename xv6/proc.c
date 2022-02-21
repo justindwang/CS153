@@ -382,6 +382,7 @@ void
 scheduler(void)
 {
   struct proc *p;
+  struct proc *proc_to_run;
   struct cpu *c = mycpu();
   c->proc = 0;
   int lowest;
@@ -396,18 +397,18 @@ scheduler(void)
       for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
           if (p->state == RUNNABLE && p->priority < lowest) {
               lowest = p->priority;
+              proc_to_run = p;
           }
-      }
 
       for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
-        continue;
-
-      if(p->priority != lowest){
+        if(p->state != RUNNABLE)
+          continue;
+        if(p->priority != lowest){
           // if (p->priority > 0) {
           //     p->priority--;
           // }
-          continue;
+          //continue;
+        }
       }
 
       // Switch to chosen process.  It is the process's job
