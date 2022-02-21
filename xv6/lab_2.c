@@ -78,7 +78,7 @@ int PScheduler(void){
     printf(1, "\n  The parent processes will switch to priority 0\n");
     setpriority(1);
 
-    for(i = 0; i < 4; i++) {
+    for(i = 0; i < 5; i++) {
         pid = fork();
         if (pid > 0 ) {
             continue;
@@ -92,8 +92,8 @@ int PScheduler(void){
             }
             
 			printf(1, "\n child# %d has priority %d after finishing its work", getpid(), getpriority());
-			exit(0);
 			printf(1, "\n child# %d with original priority %d has finished! \n", getpid(), priorityArr[i]);
+            exit(0);
             
         } else {
             printf(2," \n Error \n");
@@ -101,7 +101,7 @@ int PScheduler(void){
     }
 
     if(pid > 0) {
-        for(i = 0; i < 4; i++) {
+        for(i = 0; i < 5; i++) {
             wait(0);
         }
         printf(1,"\n if processes with highest priority finished first then its correct \n");
