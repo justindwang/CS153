@@ -382,7 +382,7 @@ void
 scheduler(void)
 {
   struct proc *p;
-  struct proc *proc_to_run;
+  struct proc *proc_to_run = 0;
   struct cpu *c = mycpu();
   c->proc = 0;
   int lowest;
