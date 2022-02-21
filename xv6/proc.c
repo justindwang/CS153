@@ -382,65 +382,60 @@ void
 scheduler(void)
 {
   struct proc *p;
-  struct proc *q;
-  struct proc *r;
+  struct proc *i;
   struct cpu *c = mycpu();
   c->proc = 0;
-  
   
   for(;;){
     // Enable interrupts on this processor.
     sti();
+
     // Loop over process table looking for process to run.
-    struct proc *hPrior = 0;
     acquire(&ptable.lock);
-   // ------------------------------------------------------------- 
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
+    p = ptable.proc;
+    while(p < &ptable.proc[NPROC]){
+      if(p->state != RUNNABLE){
+        p++;
         continue;
-      hPrior = p;
-      
-      for(q = ptable.proc; q < &ptable.proc[NPROC]; q++) {
-        if (q->state != RUNNABLE) 
-          continue;
-        if (q->priority < hPrior->priority) {
-          hPrior = q;
-          }
-        }
-      
-      for(r = ptable.proc; r < &ptable.proc[NPROC]; r++) {
-        if (r->state != RUNNABLE) 
-          continue;
-        if (r != hPrior) {
-          // if (r->priority != 0) {
-          //   r->priority = r->priority - 1;
-          //   }
-          }
-        }
+      }
+      for(i = p + 1; i < &ptable.proc[NPROC]; i++){
+        if(i->state == RUNNABLE && i->priority < p->priority)
+          p = i;
+      }
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
-      //
-     // cprintf("highPrior is %d \n", highPrior->priority);
-      p = hPrior;
-
-
-      // if (p->priority < 63) {
-      //   p->priority = p->priority + 1;
-      //   }
-   //   cprintf("hPrior came up with %d \n", p->priority);  
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
+
       swtch(&(c->scheduler), p->context);
       switchkvm();
-      c->proc = 0;
-      } 
+
       // Process is done running for now.
       // It should have changed its p->state before coming back.
-   
+      c->proc = 0;
+
+      //START - Starvation Scheduler
+      //run this scheduler with command "lab2"
+      for(i = ptable.proc; i < &ptable.proc[NPROC]; i++){
+        if(i->state == RUNNABLE){
+          if(i == p && i->priority < 31){
+            i->priority = i->priority + 1;
+          }
+          else if(i != p && i->priority > 0){
+            i->priority = i->priority - 1;
+          }
+        }
+      }
+      cprintf(" \n This is process %d with priority %d \n ", p->pid, p->priority);
+      //END*/
+
+      p = ptable.proc;
+    }
     release(&ptable.lock);
+
   }
 }
 
