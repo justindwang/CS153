@@ -386,6 +386,7 @@ void
 scheduler(void)
 {
   struct proc *p = 0;
+  struct proc *p2;
   struct cpu *c = mycpu();
   c->proc = 0;
   
@@ -413,9 +414,7 @@ scheduler(void)
         p = highP;
 
 
-      // if (p->priority < 63) {
-      //   p->priority = p->priority + 1;
-      //   }
+      
       if(p != 0){
 
         // Switch to chosen process.  It is the process's job
@@ -431,6 +430,18 @@ scheduler(void)
         // Process is done running for now.
         // It should have changed its p->state before coming back.
         c->proc = 0;
+      }
+
+      // Lab2 Part1 - Priority Aging
+      for(p2 = ptable.proc; p2 < &ptable.proc[NPROC]; p2++){
+        if(p2->state == RUNNABLE){
+          if(p2 == p && p2->priority < 31){
+            p2->priority++;
+          }
+          else if(p2 != p && p2->priority > 0){
+            p2->priority--;
+          }
+        }
       }
     } 
    
