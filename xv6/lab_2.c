@@ -46,7 +46,6 @@ int PScheduler(void){
         }
             
 		printf(1, "\n child# %d has priority %d after finishing its work", getpid(), getpriority());
-		printf(1, "\n child# %d with original priority %d has finished! \n", getpid(), priorityArr[i]);
         exit(0);   
     }
     
