@@ -49,7 +49,10 @@ sys_setpriority(void)
   int priority;
   if(argint(0, &priority) < 0)
     return -1;
-  return setpriority(priority);
+  int pid;
+  if(argint(1, &pid) < 0)
+    return -1;
+  return setpriority(priority, pid);
 }
 
 int
