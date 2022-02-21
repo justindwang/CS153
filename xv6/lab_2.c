@@ -83,29 +83,21 @@ int PScheduler(void){
 int donateTest(void){
     int pid;
     int j,k;
+    int ppid = getpid();
     pid = fork();
     if( pid > 0){
-        setpriority(2);
-        printf(1, "\n This is parent# %d with priority %d", getpid(), getpriority());
-        for (j=0;j<3000;j++) {
-            for(k=0;k<1000;k++) {
-                asm("nop");
-            }
-        }
-        printf(1, "\n Now donating priority %d to child# %d", getpriority(), pid);
-        donateprio(pid);
+        setpriority(30);
+        printf(1, "\n This is parent# %d with priority %d", ppid, getpriority());
         wait(0);
+        printf(1, "\n This is parent# %d with priority %d after receiving a donation", ppid, getpriority());
         exit(0);
     }
     else{
-        setpriority(30);
+        setpriority(2);
         printf(1, "\n This is child# %d with priority %d before donation", getpid(), getpriority());
-        for (j=0;j<50000;j++) {
-            for(k=0;k<10000;k++) {
-                asm("nop");
-            }
-        }
-        printf(1, "\n This is child# %d with priority %d after donation", getpid(), getpriority());
+        printf(1, "\n Calling donateprio() to donate my priority to my parent..");
+        donateprio(ppid);
+        printf(1, "\n This is child# %d with priority %d and I finished donating", getpid(), getpriority());
         exit(0);
     }
 }
