@@ -31,7 +31,7 @@ int PScheduler(void){
     printf(1, "\n  The parent processes will switch to priority 0\n");
     setpriority(1);
 
-    for(i = 0; i < 5; i++) {
+    for(i = 0; i < 4; i++) {
         pid = fork();
         if (pid > 0 ) {
             continue;
@@ -54,7 +54,7 @@ int PScheduler(void){
     }
 
     if(pid > 0) {
-        for(i = 0; i < 5; i++) {
+        for(i = 0; i < 4; i++) {
             wait(0);
         }
         printf(1,"\n if processes with highest priority finished first then its correct \n");
