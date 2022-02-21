@@ -363,10 +363,7 @@ int
 setpriority(int priority)
 {
   struct proc* curproc = myproc();
-  if (priority < 0 || priority > 31)
-    return -1;
-  curproc->priority = priority;
-  yield(); 
+  curproc->priority = priority; 
   return 0;
 }
 
