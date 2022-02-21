@@ -422,7 +422,7 @@ void
 scheduler(void)
 {
   struct proc *p;
-  struct proc *i;
+  struct proc *prio;
   struct cpu *c = mycpu();
   c->proc = 0;
   
@@ -437,9 +437,9 @@ scheduler(void)
       if(p->state != RUNNABLE){
         continue;
       }
-      for(i = p + 1; i < &ptable.proc[NPROC]; i++){
-        if(i->state == RUNNABLE && i->priority < p->priority)
-          p = i;
+      for(prio = p + 1; prio < &ptable.proc[NPROC]; prio++){
+        if(prio->state == RUNNABLE && prio->priority < p->priority)
+          p = prio;
       }
 
       // Switch to chosen process.  It is the process's job
@@ -456,13 +456,13 @@ scheduler(void)
       // It should have changed its p->state before coming back.
       c->proc = 0;
 
-      for(i = ptable.proc; i < &ptable.proc[NPROC]; i++){
-        if(i->state == RUNNABLE){
-          if(i == p && i->priority < 31){
-            i->priority++;
+      for(prio = ptable.proc; prio < &ptable.proc[NPROC]; prio++){
+        if(prio->state == RUNNABLE){
+          if(prio == p && prio->priority < 31){
+            prio->priority++;
           }
-          else if(i != p && i->priority > 0){
-            i->priority = i->priority--;
+          else if(prio != p && prio->priority > 0){
+            prio->priority--;
           }
         }
       }
