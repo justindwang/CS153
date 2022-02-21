@@ -382,58 +382,63 @@ void
 scheduler(void)
 {
   struct proc *p;
-  struct proc *proc_to_run = 0;
+  struct proc *q;
+  struct proc *r;
   struct cpu *c = mycpu();
   c->proc = 0;
-  int lowest;
+  
   
   for(;;){
     // Enable interrupts on this processor.
     sti();
-
     // Loop over process table looking for process to run.
-    lowest = 32;
+    struct proc *hPrior = 0;
     acquire(&ptable.lock);
-      for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-          if (p->state == RUNNABLE && p->priority < lowest) {
-              lowest = p->priority;
-              proc_to_run = p;
-          }
-
-      // for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      //   if(p->state != RUNNABLE)
-      //     continue;
-      //   if(p->priority != lowest){
-      //     // if (p->priority > 0) {
-      //     //     p->priority--;
-      //     // }
-      //     continue;
-      //   }
-      // }
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->state != RUNNABLE)
-          continue;
-      if(p->priority != lowest)
-          // if (p->priority > 0) {
-          //     p->priority--;
-          // }
-          continue;
+        continue;
+      hPrior = p;
       
+      for(q = ptable.proc; q < &ptable.proc[NPROC]; q++) {
+        if (q->state != RUNNABLE) 
+          continue;
+        if (q->priority < hPrior->priority) {
+          hPrior = q;
+          }
+        }
+      
+      // for(r = ptable.proc; r < &ptable.proc[NPROC]; r++) {
+      //   if (r->state != RUNNABLE) 
+      //     continue;
+      //   if (r != hPrior) {
+      //     if (r->priority != 0) {
+      //       r->priority = r->priority - 1;
+      //       }
+      //     }
+      //   }
+
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
-      p = proc_to_run;
+      //
+     // cprintf("highPrior is %d \n", highPrior->priority);
+      p = hPrior;
+
+
+      // if (p->priority < 63) {
+      //   p->priority = p->priority + 1;
+      //   }
+   //   cprintf("hPrior came up with %d \n", p->priority);  
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
-      // p->priority++;
       swtch(&(c->scheduler), p->context);
       switchkvm();
-
+      c->proc = 0;
+      } 
       // Process is done running for now.
       // It should have changed its p->state before coming back.
-      c->proc = 0;
-    }
-
+   
     release(&ptable.lock);
   }
 }
