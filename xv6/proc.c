@@ -417,20 +417,19 @@ scheduler(void)
     
     acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      struct proc *highP = 0;
+      struct proc *highest = 0;
       struct proc *p1 = 0;
 
       if(p->state != RUNNABLE)
         continue;
-      // Choose the process with highest priority (among RUNNABLEs)
-      highP = p;
+      highest = p;
       for(p1 = ptable.proc; p1 < &ptable.proc[NPROC]; p1++){
-        if((p1->state == RUNNABLE) && (highP->priority > p1->priority))
-          highP = p1;
+        if((p1->state == RUNNABLE) && (highest->priority > p1->priority))
+          highest = p1;
       }
 
-      if(highP != 0)
-        p = highP;
+      if(highest != 0)
+        p = highest;
 
 
       
@@ -451,7 +450,7 @@ scheduler(void)
         c->proc = 0;
       }
 
-      // Lab2 Part1 - Priority Aging
+      // Lab2 Part1 - Priority Aging with 0 and 31 as baselines
       for(p2 = ptable.proc; p2 < &ptable.proc[NPROC]; p2++){
         if(p2->state == RUNNABLE){
           if(p2 == p && p2->priority < 31){
