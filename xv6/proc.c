@@ -379,67 +379,52 @@ void
 scheduler(void)
 {
   struct proc *p;
-  struct proc *q;
-  struct proc *r;
   struct cpu *c = mycpu();
   c->proc = 0;
-  
+  int low_priority;
   
   for(;;){
     // Enable interrupts on this processor.
     sti();
+
     // Loop over process table looking for process to run.
-    struct proc *hPrior = 0;
+    low_priority = 1000;
     acquire(&ptable.lock);
-   // ------------------------------------------------------------- 
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+          if (p->state == RUNNABLE && p->priority < low_priority) {
+              low_priority = p->priority;
+          }
+      }
+
+      for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->state != RUNNABLE)
         continue;
-      hPrior = p;
-      
-      for(q = ptable.proc; q < &ptable.proc[NPROC]; q++) {
-        if (q->state != RUNNABLE) 
-          continue;
-        if (q->priority < hPrior->priority) {
-          hPrior = q;
+
+      if(p->priority != low_priority){
+          if (p->priority > 0) {
+              p->priority--;
           }
-        }
-      
-      for(r = ptable.proc; r < &ptable.proc[NPROC]; r++) {
-        if (r->state != RUNNABLE) 
           continue;
-        if (r != hPrior) {
-          if (r->priority != 0) {
-            r->priority = r->priority - 1;
-            }
-          }
-        }
+      }
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
-      //
-     // cprintf("highPrior is %d \n", highPrior->priority);
-      p = hPrior;
-
-
-      if (p->priority < 32) {
-        p->priority = p->priority + 1;
-        }
-   //   cprintf("hPrior came up with %d \n", p->priority);  
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
+      p->priority++;
+
       swtch(&(c->scheduler), p->context);
       switchkvm();
-      c->proc = 0;
-      } 
+
       // Process is done running for now.
       // It should have changed its p->state before coming back.
-   
+      c->proc = 0;
+    }
+
     release(&ptable.lock);
   }
-
 }
 
 // Enter scheduler.  Must hold only ptable.lock
