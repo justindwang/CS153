@@ -88,6 +88,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->priority = 10;
   p->start = ticks;
 
   release(&ptable.lock);
@@ -113,7 +114,6 @@ found:
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
 
-  p->priority = 10;
   return p;
 }
 
@@ -218,6 +218,13 @@ fork(void)
 
   np->state = RUNNABLE;
 
+  if (np->parent->priority < np->priority) {
+	  np->priority = np->parent->priority;
+  }
+  else {
+	  np->priority = 10;
+  }
+
   release(&ptable.lock);
 
   return pid;
@@ -229,52 +236,15 @@ fork(void)
 void
 exit(int status)
 {
-  // struct proc *curproc = myproc();
-  // struct proc *p;
-  // int fd;
-
-  // curproc->status = status;
-
-  // if(curproc == initproc)
-  //   panic("init exiting");
-
-  // // Close all open files.
-  // for(fd = 0; fd < NOFILE; fd++){
-  //   if(curproc->ofile[fd]){
-  //     fileclose(curproc->ofile[fd]);
-  //     curproc->ofile[fd] = 0;
-  //   }
-  // }
-
-  // begin_op();
-  // iput(curproc->cwd);
-  // end_op();
-  // curproc->cwd = 0;
-
-  // cprintf("\nProcess %d's turnaround time was %d\n", curproc->pid, ticks - curproc->start);
-
-  // acquire(&ptable.lock);
-
-  // // Parent might be sleeping in wait().
-  // wakeup1(curproc->parent);
-
-  // // Pass abandoned children to init.
-  // for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-  //   if(p->parent == curproc){
-  //     p->parent = initproc;
-  //     if(p->state == ZOMBIE)
-  //       wakeup1(initproc);
-  //   }
-  // }
-
-  // // Jump into the scheduler, never to return.
-  // curproc->state = ZOMBIE;
-  // sched();
-  // panic("zombie exit");
   struct proc *curproc = myproc();
   struct proc *p;
   int fd;
-  int end_time;
+
+  curproc->status = status;
+
+  if (curproc->priority < 31) {
+  	curproc->priority = curproc->priority + 1;
+  }
 
   if(curproc == initproc)
     panic("init exiting");
@@ -292,8 +262,7 @@ exit(int status)
   end_op();
   curproc->cwd = 0;
 
-  end_time = ticks;
-  cprintf("\n turnaround time is %d\n", end_time - curproc->start);
+  cprintf("\nProcess %d's turnaround time was %d\n", curproc->pid, ticks - curproc->start);
 
   acquire(&ptable.lock);
 
@@ -345,6 +314,9 @@ wait(int* status)
         p->state = UNUSED;
         if(status != 0)
           *status = p->status;
+        if (p->priority > 0) {
+		      p->priority = p->priority - 1;
+	      }
         release(&ptable.lock);
         return pid;
       }
@@ -422,7 +394,6 @@ void
 scheduler(void)
 {
   struct proc *p;
-  struct proc *prio;
   struct cpu *c = mycpu();
   c->proc = 0;
   
@@ -431,42 +402,35 @@ scheduler(void)
     sti();
 
     // Loop over process table looking for process to run.
+    int prio = 32;
     acquire(&ptable.lock);
-    
-    for(p = ptable.proc; p < &ptable.proc[NPROC];p++){
-      if(p->state != RUNNABLE){
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+	    if (p->state != RUNNABLE) 
+	      continue;
+	    if (p->priority < prio) {
+		    prio = p->priority;
+	    }
+    }
+
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->state != RUNNABLE)
         continue;
-      }
-      for(prio = p + 1; prio < &ptable.proc[NPROC]; prio++){
-        if(prio->state == RUNNABLE && prio->priority < p->priority)
-          p = prio;
-      }
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
-      c->proc = p;
-      switchuvm(p);
-      p->state = RUNNING;
 
-      swtch(&(c->scheduler), p->context);
-      switchkvm();
+      if (p->priority == prio) {
+      	c->proc = p;
+      	switchuvm(p);
+      	p->state = RUNNING;
 
+      	swtch(&(c->scheduler), p->context);
+      	switchkvm();
+	}
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       c->proc = 0;
-
-      for(prio = ptable.proc; prio < &ptable.proc[NPROC]; prio++){
-        if(prio->state == RUNNABLE){
-          if(prio == p && prio->priority < 31){
-            prio->priority++;
-          }
-          else if(prio != p && prio->priority > 0){
-            prio->priority--;
-          }
-        }
-      }
-      p = ptable.proc;
     }
     release(&ptable.lock);
   }
