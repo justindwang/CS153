@@ -23,7 +23,7 @@ int priorityTest(void) {
     		if (pid == 0) {
 			if (getpid() == 6) {
       				printf(1, "\nThis is process PID# %d and I have priority of 1\n", getpid());
-				updatepriority(1, getpid());
+				setpriority(1, getpid());
 			}
 			int j;
 			for (j = 0; j < 25000000; j++) {}
