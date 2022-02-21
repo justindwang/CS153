@@ -31,8 +31,8 @@ int PScheduler(void){
 	if (pid > 0 ) {
 		continue;}
 	else if ( pid == 0) {
-
-		setpriority(30-10*i);	
+		setpriority(30-10*i);
+		printf(1,"\nThis is child# %d with priority %d starting..\n",getpid(),30-10*i);	
 		for (j=0;j<50000;j++) {
 			for(k=0;k<10000;k++) {
 				asm("nop"); }}
@@ -41,10 +41,9 @@ int PScheduler(void){
         }
         else {
 			printf(2," \n Error \n");
-			
         }
 	}
-
+	
 	if(pid > 0) {
 		for (i = 0; i <  3; i++) {
 			wait(0);
