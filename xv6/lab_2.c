@@ -69,6 +69,11 @@ int donateTest(void){
     if( pid > 0){
         setpriority(2);
         printf(1, "\n This is parent# %d with priority %d", getpid(), getpriority());
+        for (j=0;j<3000;j++) {
+            for(k=0;k<1000;k++) {
+                asm("nop");
+            }
+        }
         printf(1, "\n Now donating priority %d to child# %d", getpriority(), pid);
         donateprio(pid);
         wait(0);
