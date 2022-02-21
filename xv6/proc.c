@@ -229,11 +229,52 @@ fork(void)
 void
 exit(int status)
 {
+  // struct proc *curproc = myproc();
+  // struct proc *p;
+  // int fd;
+
+  // curproc->status = status;
+
+  // if(curproc == initproc)
+  //   panic("init exiting");
+
+  // // Close all open files.
+  // for(fd = 0; fd < NOFILE; fd++){
+  //   if(curproc->ofile[fd]){
+  //     fileclose(curproc->ofile[fd]);
+  //     curproc->ofile[fd] = 0;
+  //   }
+  // }
+
+  // begin_op();
+  // iput(curproc->cwd);
+  // end_op();
+  // curproc->cwd = 0;
+
+  // cprintf("\nProcess %d's turnaround time was %d\n", curproc->pid, ticks - curproc->start);
+
+  // acquire(&ptable.lock);
+
+  // // Parent might be sleeping in wait().
+  // wakeup1(curproc->parent);
+
+  // // Pass abandoned children to init.
+  // for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+  //   if(p->parent == curproc){
+  //     p->parent = initproc;
+  //     if(p->state == ZOMBIE)
+  //       wakeup1(initproc);
+  //   }
+  // }
+
+  // // Jump into the scheduler, never to return.
+  // curproc->state = ZOMBIE;
+  // sched();
+  // panic("zombie exit");
   struct proc *curproc = myproc();
   struct proc *p;
   int fd;
-
-  curproc->status = status;
+  int end_time;
 
   if(curproc == initproc)
     panic("init exiting");
@@ -251,7 +292,8 @@ exit(int status)
   end_op();
   curproc->cwd = 0;
 
-  cprintf("\nProcess %d's turnaround time was %d\n", curproc->pid, ticks - curproc->start);
+  end_time = ticks;
+  cprintf("\n turnaround time is %d\n", end_time - curproc->start_time);
 
   acquire(&ptable.lock);
 
