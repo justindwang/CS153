@@ -182,6 +182,7 @@ UPROGS=\
 	_wc\
 	_zombie\
 	_lab_1\
+	_lab_2\
 
 fs.img: mkfs README $(UPROGS)
 	./mkfs fs.img README $(UPROGS)

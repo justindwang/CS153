@@ -88,6 +88,8 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->priority = 10;
+  p->start = ticks;
 
   release(&ptable.lock);
 
@@ -249,6 +251,8 @@ exit(int status)
   end_op();
   curproc->cwd = 0;
 
+  cprintf("\nProcess %d's turnaround time was %d\n", curproc->pid, ticks - curproc->start);
+
   acquire(&ptable.lock);
 
   // Parent might be sleeping in wait().
@@ -369,16 +373,32 @@ scheduler(void)
   struct proc *p;
   struct cpu *c = mycpu();
   c->proc = 0;
-  
+  int priority_floor;
+
   for(;;){
     // Enable interrupts on this processor.
     sti();
 
+    priority_floor = 32;
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
+
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->state == RUNNABLE && p->priority < priority_floor){
+        priority_floor = p->priority;
+      }
+    }
+
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->state != RUNNABLE)
         continue;
+
+      if(p->priority != priority_floor){
+        if(p->priority > 0){
+          p->priority = p->priority - 1;
+        }
+        continue;
+      }
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
@@ -386,6 +406,10 @@ scheduler(void)
       c->proc = p;
       switchuvm(p);
       p->state = RUNNING;
+      
+      if(p->priority < 31) {
+        p->priority = p->priority + 1;
+      }
 
       swtch(&(c->scheduler), p->context);
       switchkvm();
