@@ -38,7 +38,7 @@ int PScheduler(void){
         } else if ( pid == 0) {
             setpriority(priorityArr[i]);
             printf(1, "\n child# %d has priority %d before starting its work", getpid(), getpriority());
-            for (j=0;j<25000;j++) {
+            for (j=0;j<75000;j++) {
                 for(k=0;k<10000;k++) {
                     asm("nop");
                 }
