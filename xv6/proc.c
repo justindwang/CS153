@@ -386,7 +386,7 @@ void
 scheduler(void)
 {
   struct proc *p;
-  // struct proc *q;
+  struct proc *q;
   // struct proc *r;
   struct cpu *c = mycpu();
   struct proc *to_run = 0;
@@ -408,7 +408,7 @@ scheduler(void)
     }
 
     
-      
+    for(q = ptable.proc; q < &ptable.proc[NPROC]; q++){
       // for(q = ptable.proc; q < &ptable.proc[NPROC]; q++) {
       //   if (q->state != RUNNABLE) 
       //     continue;
@@ -432,20 +432,22 @@ scheduler(void)
       // before jumping back to us.
       //
      // cprintf("highPrior is %d \n", highPrior->priority);
-      p = to_run;
+      if (p->state != RUNNABLE || q != to_run)
+        continue;
+      // p = to_run;
 
 
       // if (p->priority < 63) {
       //   p->priority = p->priority + 1;
       //   }
    //   cprintf("hPrior came up with %d \n", p->priority);  
-      c->proc = p;
-      switchuvm(p);
-      p->state = RUNNING;
-      swtch(&(c->scheduler), p->context);
+      c->proc = q;
+      switchuvm(q);
+      q->state = RUNNING;
+      swtch(&(c->scheduler), q->context);
       switchkvm();
       c->proc = 0;
-       
+    }  
       // Process is done running for now.
       // It should have changed its p->state before coming back.
    
