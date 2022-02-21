@@ -50,7 +50,7 @@ int PScheduler(void){
             // third child process
             if(pid == 0){
                 setpriority(10);
-                printf(1, "\n child# %d has priority %d before starting its work", getpid(), getpriority());
+                printf(1, "\n child# %d has priority %d before starting its work\n", getpid(), getpriority());
             }
         }
     }
