@@ -76,6 +76,7 @@ int donateTest(void){
         }
         printf(1, "\n Now donating priority %d to child# %d", getpriority(), pid);
         donateprio(pid);
+        wait(0);
         exit(0);
     }
     else{
