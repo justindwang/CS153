@@ -383,7 +383,7 @@ scheduler(void)
 {
   struct proc *p;
   struct proc *q;
-  struct proc *r;
+  // struct proc *r;
   struct cpu *c = mycpu();
   c->proc = 0;
   
