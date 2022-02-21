@@ -42,14 +42,14 @@ int PScheduler(void){
 
         // second child process
         if(pid == 0){
-            setpriority(20);
+            setpriority(11);
             printf(1, "\n child# %d has priority %d before starting its work", getpid(), getpriority());
 
             pid = fork();
 
             // third child process
             if(pid == 0){
-                setpriority(11);
+                setpriority(20);
                 printf(1, "\n child# %d has priority %d before starting its work", getpid(), getpriority());
             }
         }
