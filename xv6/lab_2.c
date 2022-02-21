@@ -6,7 +6,7 @@ int main(int argc, char *argv[])
 {
     int PScheduler(void);
     int donateTest(void);
-    printf(1, "\n This program tests the correctness of your lab#2\nNote to run donateTest without aging..");
+    printf(1, "\n This program tests the correctness of your lab#2\n");
     if (atoi(argv[1]) == 1)
         PScheduler();
     else if (atoi(argv[1]) == 2)
@@ -83,21 +83,20 @@ int PScheduler(void){
 int donateTest(void){
     int pid;
     int ppid = getpid();
+    setpriority(30);
+    printf(1, "\n This is parent# %d with starting priority %d", ppid, 30);
     pid = fork();
-    if( pid > 0){
-        setpriority(30);
-        printf(1, "\n This is parent# %d with priority %d", ppid, getpriority());
-        wait(0);
-        printf(1, "\n This is parent# %d with priority %d after receiving a donation", ppid, getpriority());
-        exit(0);
-    }
-    else{
+    if( pid == 0){
         setpriority(2);
-        printf(1, "\n This is child# %d with priority %d before donation", getpid(), getpriority());
+        printf(1, "\n This is child# %d with starting priority %d before donation", getpid(), 2);
         printf(1, "\n Calling donateprio() to donate my priority to my parent..");
         donateprio(ppid);
-        printf(1, "\n This is child# %d with priority %d and I finished donating", getpid(), getpriority());
+        printf(1, "\n This is child# %d with starting priority %d and I finished donating", getpid(), 2);
+        printf(1, "\n This is child# %d with current priority %d due to aging", getpid(), getpriority());
         exit(0);
     }
+    wait(0);
+    printf(1, "\n This is parent# %d with current priority %d after receiving a donation and running for a bit", ppid, getpriority());
+    exit(0);
 }
 
