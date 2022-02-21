@@ -84,13 +84,13 @@ int PScheduler(void){
             continue;
         } else if ( pid == 0) {
             setPriority(priorityArr[i]);
-            printf(1, "\n child# %d has priority %d before starting its work", getpid(), getPriority());
+            printf(1, "\n child# %d has priority %d before starting its work", getpid(), getpriority);
             for (j=0;j<50000;j++) {
                 for(k=0;k<1000;k++) {
                     asm("nop");
                 }
             }
-            printf(1, "\n child# %d has priority %d after finishing its work", getpid(), getPriority());
+            printf(1, "\n child# %d has priority %d after finishing its work", getpid(), getpriority());
             printf(1, "\n child# %d with original priority %d has finished! \n", getpid(), priorityArr[i]);
             exit(0);
         } else {
