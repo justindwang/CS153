@@ -417,7 +417,6 @@ scheduler(void)
       switchuvm(p);
       p->state = RUNNING;
       // p->priority++;
-      cprintf("\nProcess %d with priority %d was chosen to be scheduled\n", p->pid, p->priority);
       swtch(&(c->scheduler), p->context);
       switchkvm();
 
