@@ -293,7 +293,7 @@ exit(int status)
   curproc->cwd = 0;
 
   end_time = ticks;
-  cprintf("\n turnaround time is %d\n", end_time - curproc->start_time);
+  cprintf("\n turnaround time is %d\n", end_time - curproc->start);
 
   acquire(&ptable.lock);
 
