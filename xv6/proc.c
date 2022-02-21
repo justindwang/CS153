@@ -364,6 +364,7 @@ setpriority(int priority)
 {
   struct proc *p = myproc();
   p->priority = priority;
+  yield();
   return 0;
 }
 
