@@ -270,7 +270,7 @@ exit(int status)
   // Jump into the scheduler, never to return.
   curproc->state = ZOMBIE;
   sched();
-  panic("zombie exit");
+  //panic("zombie exit");
 }
 
 // Wait for a child process to exit and return its pid.
