@@ -123,6 +123,7 @@ void            wakeup(void*);
 void            yield(void);
 int             setpriority(int priority);
 int             getpriority(void);
+int             donateprio(int);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

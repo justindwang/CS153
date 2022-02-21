@@ -59,6 +59,15 @@ sys_getpriority(void)
 }
 
 int
+sys_donateprio(void)
+{
+  int pid;
+  argint(0, &pid);
+  donateprio(pid);
+  return 0;
+}
+
+int
 sys_kill(void)
 {
   int pid;

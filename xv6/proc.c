@@ -364,6 +364,7 @@ setpriority(int priority)
 {
   struct proc* curproc = myproc();
   curproc->priority = priority; 
+  yield();
   return 0;
 }
 
@@ -372,6 +373,22 @@ getpriority()
 {
   struct proc *curproc = myproc();
   return curproc->priority;
+}
+
+void
+donateprio(int pid)
+{
+  struct proc *p;
+  struct proc *curproc = myproc();
+
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->pid == pid){
+      p->priority = curproc->priority;
+    }
+  }
+  release(&ptable.lock);
+  yield();
 }
 
 //PAGEBREAK: 42

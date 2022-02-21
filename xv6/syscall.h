@@ -23,3 +23,4 @@
 #define SYS_waitpid 22
 #define SYS_setpriority 23
 #define SYS_getpriority 24
+#define SYS_donateprio  25
