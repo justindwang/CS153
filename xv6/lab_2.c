@@ -21,6 +21,7 @@ int main(int argc, char *argv[])
 int PScheduler(void){
     // use this part to test the priority scheduler. Assuming that the priorities range between range between 0 to 31
     // 0 is the highest priority and 31 is the lowest priority.
+    int pid1;
     int pid;
     int i,j,k;
     int priorityArr[] = {30, 11, 15, 18, 25};
@@ -31,19 +32,31 @@ int PScheduler(void){
     printf(1, "\n  The parent processes will switch to priority 0\n");
     setpriority(1);
 
-    for(i = 0; i < 5; i++) {
-        
+    pid1 = fork();
+
+    // first child process
+    if (pid1 == 0){
+        setpriority(30);
+        printf(1, "\n child# %d has priority %d before starting its work", getpid(), getpriority());
+
         pid = fork();
-        if(pid > 0){
-            break;
-        }
+
+        // second child process
         if(pid == 0){
-            setpriority(priorityArr[i]);
+            setpriority(20);
             printf(1, "\n child# %d has priority %d before starting its work", getpid(), getpriority());
-            break;
+
+            pid = fork();
+
+            // third child process
+            if(pid == 0){
+                setpriority(11);
+                printf(1, "\n child# %d has priority %d before starting its work", getpid(), getpriority());
+            }
         }
     }
-    if( pid == 0) {
+
+    if( pid1 == 0) {
         for (j=0;j<25000;j++) {
             for(k=0;k<10000;k++) {
                 asm("nop");
@@ -51,15 +64,13 @@ int PScheduler(void){
         }
             
 		printf(1, "\n child# %d has priority %d after finishing its work", getpid(), getpriority());
+        wait(0);
         exit(0);   
     }
     
-    if(pid > 0) {
-        for(i = 0; i < 5; i++) {
-            wait(0);
-        }
-        printf(1,"\n if processes with highest priority finished first then its correct \n");
-    }
+    
+    printf(1,"\n if processes with highest priority finished first then its correct \n");
+    wait(0);
     exit(0);
 }
 
