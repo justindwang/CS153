@@ -23,7 +23,7 @@ int PScheduler(void){
     // 0 is the highest priority and 31 is the lowest priority.
     int pid;
     int i,j,k;
-    int priorityArr[] = {30, 11, 15, 18, 25};
+    int priorityArr[] = {30, 2, 15, 7, 25};
 
     printf(1, "\n  Testing the priority scheduler and setPriority(int priority) system call:\n");
     printf(1, "\n  Assuming that the priorities range between range between 0 to 31\n");

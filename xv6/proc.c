@@ -88,7 +88,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
-  p->priority = 10;
+  p->priority = 0;
   p->start = ticks;
 
   release(&ptable.lock);
@@ -213,6 +213,7 @@ fork(void)
   safestrcpy(np->name, curproc->name, sizeof(curproc->name));
 
   pid = np->pid;
+  np->priority = 10;
 
   acquire(&ptable.lock);
 
