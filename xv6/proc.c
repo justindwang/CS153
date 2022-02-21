@@ -415,16 +415,16 @@ scheduler(void)
       // It should have changed its p->state before coming back.
       c->proc = 0;
 
-      for(prio = ptable.proc; prio < &ptable.proc[NPROC]; prio++){
-        if(prio->state == RUNNABLE){
-          if(prio == p && prio->priority < 31){
-            prio->priority = prio->priority + 1;
-          }
-          else if(prio != p && prio->priority > 0){
-            prio->priority = prio->priority - 1;
-          }
-        }
-      }
+      // for(prio = ptable.proc; prio < &ptable.proc[NPROC]; prio++){
+      //   if(prio->state == RUNNABLE){
+      //     if(prio == p && prio->priority < 31){
+      //       prio->priority = prio->priority + 1;
+      //     }
+      //     else if(prio != p && prio->priority > 0){
+      //       prio->priority = prio->priority - 1;
+      //     }
+      //   }
+      // }
 
       p = ptable.proc;
     }
