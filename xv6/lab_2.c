@@ -32,6 +32,7 @@ int PScheduler(void){
     setpriority(1);
 
     for(i = 0; i < 5; i++) {
+        
         pid = fork();
         if(pid > 0){
             break;
@@ -39,10 +40,11 @@ int PScheduler(void){
         if(pid == 0){
             setpriority(priorityArr[i]);
             printf(1, "\n child# %d has priority %d before starting its work", getpid(), getpriority());
+            break;
         }
     }
     if( pid == 0) {
-        for (j=0;j<75000;j++) {
+        for (j=0;j<25000;j++) {
             for(k=0;k<10000;k++) {
                 asm("nop");
             }
