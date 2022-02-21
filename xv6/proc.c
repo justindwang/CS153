@@ -386,10 +386,7 @@ void
 scheduler(void)
 {
   struct proc *p;
-  struct proc *q;
-  // struct proc *r;
   struct cpu *c = mycpu();
-  struct proc *to_run = 0;
   c->proc = 0;
   
   
@@ -400,50 +397,42 @@ scheduler(void)
     
     acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      struct proc *highP = 0;
+      struct proc *p1 = 0;
+
       if(p->state != RUNNABLE)
         continue;
-      to_run = p;
-    
-      for(q = ptable.proc; q < &ptable.proc[NPROC]; q++) {
-        if (q->state != RUNNABLE) 
-          continue;
-        if (q->priority < to_run->priority) {
-          to_run = q;
-          }
-        }
-      
-      // for(r = ptable.proc; r < &ptable.proc[NPROC]; r++) {
-      //   if (r->state != RUNNABLE) 
-      //     continue;
-      //   if (r != to_run) {
-      //     if (r->priority != 0) {
-      //       r->priority = r->priority - 1;
-      //       }
-      //     }
-      //   }
+      // Choose the process with highest priority (among RUNNABLEs)
+      highP = p;
+      for(p1 = ptable.proc; p1 < &ptable.proc[NPROC]; p1++){
+        if((p1->state == RUNNABLE) && (highP->priority < p1->priority))
+          highP = p1;
+      }
 
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
-      //
-     // cprintf("highPrior is %d \n", highPrior->priority);
-      
-      p = to_run;
+      if(highP != 0)
+        p = highP;
 
 
       // if (p->priority < 63) {
       //   p->priority = p->priority + 1;
       //   }
-   //   cprintf("hPrior came up with %d \n", p->priority);  
-      c->proc = p;
-      switchuvm(p);
-      p->state = RUNNING;
-      swtch(&(c->scheduler), p->context);
-      switchkvm();
-      c->proc = 0;
-    }  
-      // Process is done running for now.
-      // It should have changed its p->state before coming back.
+      if(p != 0){
+
+        // Switch to chosen process.  It is the process's job
+        // to release ptable.lock and then reacquire it
+        // before jumping back to us.
+        c->proc = p;
+        switchuvm(p);
+        p->state = RUNNING;
+
+        swtch(&(c->scheduler), p->context);
+        switchkvm();
+
+        // Process is done running for now.
+        // It should have changed its p->state before coming back.
+        c->proc = 0;
+      }
+    } 
    
     release(&ptable.lock);
   }
