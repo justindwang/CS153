@@ -218,13 +218,6 @@ fork(void)
 
   np->state = RUNNABLE;
 
-  if (np->parent->priority < np->priority) {
-	  np->priority = np->parent->priority;
-  }
-  else {
-	  np->priority = 10;
-  }
-
   release(&ptable.lock);
 
   return pid;
@@ -241,10 +234,6 @@ exit(int status)
   int fd;
 
   curproc->status = status;
-
-  if (curproc->priority < 31) {
-  	curproc->priority = curproc->priority + 1;
-  }
 
   if(curproc == initproc)
     panic("init exiting");
@@ -314,9 +303,6 @@ wait(int* status)
         p->state = UNUSED;
         if(status != 0)
           *status = p->status;
-        if (p->priority > 0) {
-		      p->priority = p->priority - 1;
-	      }
         release(&ptable.lock);
         return pid;
       }
@@ -374,19 +360,12 @@ waitpid(int pid, int* status, int options)
 }
 
 int
-setpriority(int priority, int pid)
+setpriority(int priority)
 {
-  struct proc *p;
-  int found = -1;
-  acquire(&ptable.lock);
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-	  if (p->pid == pid) {
-		  found = 0;
-		  p->priority = priority;
-	  }
-  }
-  release(&ptable.lock);
-  return found;
+  struct proc* curproc = myproc();
+  curproc->priority = priority;
+  yield(); 
+  return 0;
 }
 
 //PAGEBREAK: 42
@@ -401,6 +380,7 @@ void
 scheduler(void)
 {
   struct proc *p;
+  struct proc *prio;
   struct cpu *c = mycpu();
   c->proc = 0;
   
@@ -409,37 +389,47 @@ scheduler(void)
     sti();
 
     // Loop over process table looking for process to run.
-    int prio = 32;
     acquire(&ptable.lock);
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
-	    if (p->state != RUNNABLE) 
-	      continue;
-	    if (p->priority < prio) {
-		    prio = p->priority;
-	    }
-    }
-
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
+    p = ptable.proc;
+    while(p < &ptable.proc[NPROC]){
+      if(p->state != RUNNABLE){
+        p++;
         continue;
+      }
+      for(prio = p + 1; prio < &ptable.proc[NPROC]; prio++){
+        if(prio->state == RUNNABLE && prio->priority < p->priority)
+          p = prio;
+      }
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
+      c->proc = p;
+      switchuvm(p);
+      p->state = RUNNING;
 
-      if (p->priority == prio) {
-      	c->proc = p;
-      	switchuvm(p);
-      	p->state = RUNNING;
+      swtch(&(c->scheduler), p->context);
+      switchkvm();
 
-      	swtch(&(c->scheduler), p->context);
-      	switchkvm();
-	}
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       c->proc = 0;
+
+      for(prio = ptable.proc; prio < &ptable.proc[NPROC]; prio++){
+        if(prio->state == RUNNABLE){
+          if(prio == p && prio->priority < 31){
+            prio->priority = prio->priority + 1;
+          }
+          else if(prio != p && prio->priority > 0){
+            prio->priority = prio->priority - 1;
+          }
+        }
+      }
+
+      p = ptable.proc;
     }
     release(&ptable.lock);
+
   }
 }
 
