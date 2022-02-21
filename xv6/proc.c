@@ -392,13 +392,12 @@ scheduler(void)
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
-    p = ptable.proc;
-    while(p < &ptable.proc[NPROC]){
+
+    for(p = ptable.proc;p < &ptable.proc[NPROC];p++){
       if(p->state != RUNNABLE){
-        p++;
         continue;
       }
-      for(temp = p + 1; temp < &ptable.proc[NPROC]; temp++){
+      for(temp = ptable.proc; temp < &ptable.proc[NPROC]; temp++){
         if(temp->state == RUNNABLE && temp->priority < p->priority)
           p = temp;
       }
@@ -427,8 +426,6 @@ scheduler(void)
       //     }
       //   }
       // }
-
-      p = ptable.proc;
     }
     release(&ptable.lock);
 
