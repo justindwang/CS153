@@ -82,7 +82,6 @@ int PScheduler(void){
 
 int donateTest(void){
     int pid;
-    int j,k;
     int ppid = getpid();
     pid = fork();
     if( pid > 0){
