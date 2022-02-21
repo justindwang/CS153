@@ -432,10 +432,9 @@ scheduler(void)
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
-    p = ptable.proc;
-    while(p < &ptable.proc[NPROC]){
+    
+    for(p = ptable.proc; p < &ptable.proc[NPROC];p++){
       if(p->state != RUNNABLE){
-        p++;
         continue;
       }
       for(i = p + 1; i < &ptable.proc[NPROC]; i++){
@@ -457,23 +456,19 @@ scheduler(void)
       // It should have changed its p->state before coming back.
       c->proc = 0;
 
-      //START - Starvation Scheduler
-      //run this scheduler with command "lab2"
       for(i = ptable.proc; i < &ptable.proc[NPROC]; i++){
         if(i->state == RUNNABLE){
           if(i == p && i->priority < 31){
-            i->priority = i->priority + 1;
+            i->priority++;
           }
           else if(i != p && i->priority > 0){
-            i->priority = i->priority - 1;
+            i->priority = i->priority--;
           }
         }
       }
-
       p = ptable.proc;
     }
     release(&ptable.lock);
-
   }
 }
 
