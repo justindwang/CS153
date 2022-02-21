@@ -389,6 +389,7 @@ donateprio(int pid)
   }
   release(&ptable.lock);
   yield();
+  return;
 }
 
 //PAGEBREAK: 42
