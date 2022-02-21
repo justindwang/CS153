@@ -33,6 +33,9 @@ int PScheduler(void){
 
     for(i = 0; i < 5; i++) {
         pid = fork();
+        if(pid > 0){
+            break;
+        }
         if(pid == 0){
             setpriority(priorityArr[i]);
             printf(1, "\n child# %d has priority %d before starting its work", getpid(), getpriority());
