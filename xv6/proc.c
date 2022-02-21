@@ -359,6 +359,14 @@ waitpid(int pid, int* status, int options)
   }
 }
 
+int
+setpriority(int priority)
+{
+  struct proc *p = myproc();
+  p->priority = priority;
+  return 0;
+}
+
 //PAGEBREAK: 42
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.
