@@ -33,26 +33,21 @@ int PScheduler(void){
 
     for(i = 0; i < 5; i++) {
         pid = fork();
-        if (pid > 0 ) {
-            continue;
-        } else if ( pid == 0) {
-            setpriority(priorityArr[i]);
-            printf(1, "\n child# %d has priority %d before starting its work", getpid(), getpriority());
-            for (j=0;j<75000;j++) {
-                for(k=0;k<10000;k++) {
-                    asm("nop");
-                }
-            }
-            
-			printf(1, "\n child# %d has priority %d after finishing its work", getpid(), getpriority());
-			printf(1, "\n child# %d with original priority %d has finished! \n", getpid(), priorityArr[i]);
-            exit(0);
-            
-        } else {
-            printf(2," \n Error \n");
-        }
     }
-
+    if( pid == 0) {
+        setpriority(priorityArr[i]);
+        printf(1, "\n child# %d has priority %d before starting its work", getpid(), getpriority());
+        for (j=0;j<75000;j++) {
+            for(k=0;k<10000;k++) {
+                asm("nop");
+            }
+        }
+            
+		printf(1, "\n child# %d has priority %d after finishing its work", getpid(), getpriority());
+		printf(1, "\n child# %d with original priority %d has finished! \n", getpid(), priorityArr[i]);
+        exit(0);   
+     }
+    
     if(pid > 0) {
         for(i = 0; i < 5; i++) {
             wait(0);
