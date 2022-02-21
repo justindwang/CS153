@@ -56,14 +56,13 @@ int PScheduler(void){
     }
 
     if( pid1 == 0) {
-        for (j=0;j<25000;j++) {
+        for (j=0;j<50000;j++) {
             for(k=0;k<10000;k++) {
                 asm("nop");
             }
         }
             
 		printf(1, "\n child# %d has priority %d after finishing its work", getpid(), getpriority());
-        wait(0);
         exit(0);   
     }
     
