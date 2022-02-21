@@ -389,6 +389,8 @@ scheduler(void)
   struct proc *q;
   // struct proc *r;
   struct cpu *c = mycpu();
+  struct proc *to_run = 0;
+  int lowest_priority = 32;
   c->proc = 0;
   
   
@@ -396,25 +398,29 @@ scheduler(void)
     // Enable interrupts on this processor.
     sti();
     // Loop over process table looking for process to run.
-    struct proc *hPrior = 0;
+    
     acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
+      if(p->state != RUNNABLE || p->priority >= lowest_priority)
         continue;
-      hPrior = p;
+      to_run = p;
+      lowest_priority = p->priority;
+    }
+
+    
       
-      for(q = ptable.proc; q < &ptable.proc[NPROC]; q++) {
-        if (q->state != RUNNABLE) 
-          continue;
-        if (q->priority < hPrior->priority) {
-          hPrior = q;
-          }
-        }
+      // for(q = ptable.proc; q < &ptable.proc[NPROC]; q++) {
+      //   if (q->state != RUNNABLE) 
+      //     continue;
+      //   if (q->priority < to_run->priority) {
+      //     to_run = q;
+      //     }
+      //   }
       
       // for(r = ptable.proc; r < &ptable.proc[NPROC]; r++) {
       //   if (r->state != RUNNABLE) 
       //     continue;
-      //   if (r != hPrior) {
+      //   if (r != to_run) {
       //     if (r->priority != 0) {
       //       r->priority = r->priority - 1;
       //       }
@@ -426,7 +432,7 @@ scheduler(void)
       // before jumping back to us.
       //
      // cprintf("highPrior is %d \n", highPrior->priority);
-      p = hPrior;
+      p = to_run;
 
 
       // if (p->priority < 63) {
@@ -439,7 +445,7 @@ scheduler(void)
       swtch(&(c->scheduler), p->context);
       switchkvm();
       c->proc = 0;
-      } 
+       
       // Process is done running for now.
       // It should have changed its p->state before coming back.
    
