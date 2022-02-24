@@ -90,7 +90,7 @@ found:
   p->pid = nextpid++;
   p->priority = 0;
   p->start = ticks;
-  p->wait = 0;
+  p->wait_time = 0;
 
   release(&ptable.lock);
 
