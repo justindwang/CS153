@@ -90,6 +90,7 @@ found:
   p->pid = nextpid++;
   p->priority = 0;
   p->start = ticks;
+  p->wait = 0;
 
   release(&ptable.lock);
 
@@ -253,6 +254,7 @@ exit(int status)
   curproc->cwd = 0;
 
   cprintf("\nProcess %d's turnaround time was %d\n", curproc->pid, ticks - curproc->start);
+  cprintf("\nProcess %d's wait time was %d\n", curproc->pid, curproc->wait_time);
 
   acquire(&ptable.lock);
 
@@ -458,6 +460,10 @@ scheduler(void)
           }
           else if(p2 != p && p2->priority > 0){
             p2->priority--;
+          }
+          // Lab2 Part2 - Incrementing wait time for processes that did not just run
+          if(p2 != p){
+            p2->wait_time++;
           }
         }
       }
